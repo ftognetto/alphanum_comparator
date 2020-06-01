@@ -1,7 +1,7 @@
 name: alphanum_comparator
-description: A new Flutter package project.
-version: 0.0.1
-author: Quantos
+description: Porting of "The Alphanum Algorithm" in Dart, used to sort string lists alphanumerically.
+version: 1.0.1
+author: Quantos <info@quantos.it>
 homepage: https://github.com/quantosapplications/dart_alphanum_comparator
 
 environment:

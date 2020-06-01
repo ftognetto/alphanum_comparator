@@ -1,3 +1,8 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.1] - 2020-05-30
+* Initial commit
 
-* TODO: Describe initial release.
+## [1.0.0] - 2020-06-01
+* Added example
+
+## [1.0.1] - 2020-06-01
+* Added description
