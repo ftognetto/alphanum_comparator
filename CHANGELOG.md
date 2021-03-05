@@ -6,3 +6,6 @@
 
 ## [1.0.1] - 2020-06-01
 * Added description
+
+## [2.0.0] - 2021-03-05
+* Migrated to null safety
