@@ -9,3 +9,6 @@
 
 ## [2.0.0] - 2021-03-05
 * Migrated to null safety
+
+## [2.0.1] - 2021-09-07
+* Removed flutter dependency
