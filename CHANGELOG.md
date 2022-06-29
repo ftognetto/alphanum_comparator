@@ -12,3 +12,6 @@
 
 ## [2.0.1] - 2021-09-07
 * Removed flutter dependency
+
+## [2.0.2] - 2022-06-29
+* Added compareNumFirst method
