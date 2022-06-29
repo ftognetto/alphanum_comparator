@@ -29,8 +29,8 @@ class AlphanumComparator {
     return chunk.toString();
   }
 
+  /// Compare using alphanum algorithm
   static int compare(String s1, String s2) {
-
     int thisMarker = 0;
     int thatMarker = 0;
     final int s1Length = s1.length;
@@ -66,5 +66,19 @@ class AlphanumComparator {
     }
 
     return s1Length - s2Length;
+  }
+
+  /// Compare using alphanum algorithm, but sort strings starting with a number firsts
+  static int compareNumFirsts(String s1, String s2) {
+    RegExp numberRegEx = RegExp(r'[0-9]');
+    bool isS1startWithNumber = s1.startsWith(numberRegEx);
+    bool isS2startWithNumber = s2.startsWith(numberRegEx);
+
+    if (isS1startWithNumber && !isS2startWithNumber) {
+      return -1;
+    } else if (isS2startWithNumber && !isS1startWithNumber) {
+      return 1;
+    }
+    return compare(s1, s2);
   }
 }
