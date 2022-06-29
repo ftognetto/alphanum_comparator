@@ -1,7 +1,6 @@
 name: alphanum_comparator
 description: Porting of "The Alphanum Algorithm" in Dart, used to sort string lists alphanumerically.
 version: 2.0.2
-author: Quantos <info@quantos.it>
 homepage: https://github.com/ftognetto/alphanum_comparator
 
 environment:
