@@ -21,7 +21,7 @@ void main() {
       final List<String> items = ["1A", "10A", "2A", "A1", "A10", "A2"];
       items.sort(AlphanumComparator.compare);
 
-      expect(items, ["1A", "2A", "A1", "A2", "10A", "A10"]);
+      expect(items, ["1A", "2A", "10A", "A1", "A2", "A10"]);
     });
 
     test('compareNumFirsts places numbers first', () {
@@ -111,7 +111,13 @@ void main() {
       final List<String> items = ["Section 2, Page 10", "Section 2, Page 2", "Section 10, Page 1", "Section 1, Page 10", "Section 1, Page 1"];
       items.sort(AlphanumComparator.compare);
 
-      expect(items, ["Section 1, Page 1", "Section 2, Page 2", "Section 1, Page 10", "Section 10, Page 1", "Section 2, Page 10"]);
+      expect(items, [
+        "Section 1, Page 1",
+        "Section 1, Page 10",
+        "Section 2, Page 2",
+        "Section 2, Page 10",
+        "Section 10, Page 1",
+      ]);
     });
   });
 
@@ -163,14 +169,20 @@ void main() {
       final List<String> items = ["ABC1", "abc2", "ABC10", "abc20"];
       items.sort(AlphanumComparator.compare);
 
-      expect(items, ["ABC1", "abc2", "ABC10", "abc20"]);
+      expect(items, ["ABC1", "ABC10", "abc2", "abc20"]);
     });
 
     test('Numeric strings right at the edge of string length', () {
       final List<String> items = ["A1", "A2", "A10", "B", "A"];
       items.sort(AlphanumComparator.compare);
 
-      expect(items, ["A", "B", "A1", "A2", "A10"]);
+      expect(items, [
+        "A",
+        "A1",
+        "A2",
+        "A10",
+        "B",
+      ]);
     });
   });
 }
