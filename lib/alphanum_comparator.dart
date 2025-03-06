@@ -5,23 +5,22 @@ class AlphanumComparator {
     return (ch.codeUnitAt(0) >= 48) && (ch.codeUnitAt(0) <= 57);
   }
 
-  /// Length of string is passed in for improved efficiency (only need to calculate it once)
-  static String _getChunk(String s, int slength, int marker) {
+  static String _getChunk(String s, int sLength, int marker) {
     final StringBuffer chunk = StringBuffer();
-    int c = s.codeUnitAt(marker);
+    String c = s.substring(marker, marker + 1);
     chunk.write(c);
     marker++;
-    if (_isDigit(s)) {
-      while (marker < slength) {
-        c = s.codeUnitAt(marker);
-        if (!_isDigit(s)) break;
+    if (_isDigit(c)) {
+      while (marker < sLength) {
+        c = s.substring(marker, marker + 1);
+        if (!_isDigit(c)) break;
         chunk.write(c);
         marker++;
       }
     } else {
-      while (marker < slength) {
-        c = s.codeUnitAt(marker);
-        if (_isDigit(s)) break;
+      while (marker < sLength) {
+        c = s.substring(marker, marker + 1);
+        if (_isDigit(c)) break;
         chunk.write(c);
         marker++;
       }
