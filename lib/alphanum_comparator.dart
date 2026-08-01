@@ -5,17 +5,38 @@ class AlphanumComparator {
     return (ch.codeUnitAt(0) >= 48) && (ch.codeUnitAt(0) <= 57);
   }
 
+  static bool _isDecimalSeparator(String ch) {
+    return ch == '.' || ch == ',';
+  }
+
+  static bool _isDecimalChunk(String chunk) {
+    return chunk.contains('.') || chunk.contains(',');
+  }
+
   static String _getChunk(String s, int sLength, int marker) {
     final StringBuffer chunk = StringBuffer();
     String c = s.substring(marker, marker + 1);
     chunk.write(c);
     marker++;
     if (_isDigit(c)) {
+      bool decimalSeparatorFound = false;
       while (marker < sLength) {
         c = s.substring(marker, marker + 1);
-        if (!_isDigit(c)) break;
-        chunk.write(c);
-        marker++;
+        if (_isDigit(c)) {
+          chunk.write(c);
+          marker++;
+          continue;
+        }
+        if (!decimalSeparatorFound &&
+            _isDecimalSeparator(c) &&
+            marker + 1 < sLength &&
+            _isDigit(s.substring(marker + 1, marker + 2))) {
+          decimalSeparatorFound = true;
+          chunk.write(c);
+          marker++;
+          continue;
+        }
+        break;
       }
     } else {
       while (marker < sLength) {
@@ -45,15 +66,22 @@ class AlphanumComparator {
       // If both chunks contain numeric characters, sort them numerically
       int result = 0;
       if (_isDigit(thisChunk) && _isDigit(thatChunk)) {
-        // Simple chunk comparison by length.
-        final int thisChunkLength = thisChunk.length;
-        result = thisChunkLength - thatChunk.length;
-        // If equal, the first different number counts
-        if (result == 0) {
-          for (int i = 0; i < thisChunkLength; i++) {
-            result = thisChunk.codeUnitAt(i) - thatChunk.codeUnitAt(i);
-            if (result != 0) {
-              return result;
+        if (_isDecimalChunk(thisChunk) || _isDecimalChunk(thatChunk)) {
+          // At least one chunk has a decimal separator (. or ,): compare by actual numeric value
+          final double thisValue = double.parse(thisChunk.replaceAll(',', '.'));
+          final double thatValue = double.parse(thatChunk.replaceAll(',', '.'));
+          result = thisValue.compareTo(thatValue);
+        } else {
+          // Simple chunk comparison by length.
+          final int thisChunkLength = thisChunk.length;
+          result = thisChunkLength - thatChunk.length;
+          // If equal, the first different number counts
+          if (result == 0) {
+            for (int i = 0; i < thisChunkLength; i++) {
+              result = thisChunk.codeUnitAt(i) - thatChunk.codeUnitAt(i);
+              if (result != 0) {
+                return result;
+              }
             }
           }
         }

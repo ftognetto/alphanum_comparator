@@ -157,6 +157,43 @@ void main() {
     });
   });
 
+  group('Decimal number sorting', () {
+    test('Client reported case: decimal values sorted by numeric value', () {
+      final List<String> items = ["1.2", "1.22", "1.21"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1.2", "1.21", "1.22"]);
+    });
+
+    test('Comma as decimal separator', () {
+      final List<String> items = ["1,2", "1,22", "1,21"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1,2", "1,21", "1,22"]);
+    });
+
+    test('Decimal numbers within complex strings', () {
+      final List<String> items = ["file_v1.10_final", "file_v1.2_final", "file_v1.21_final"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["file_v1.10_final", "file_v1.2_final", "file_v1.21_final"]);
+    });
+
+    test('Trailing zeros do not change the decimal value', () {
+      final List<String> items = ["1.20", "1.2", "1.1"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1.1", "1.2", "1.20"]);
+    });
+
+    test('Non-decimal dotted strings keep previous behaviour', () {
+      final List<String> items = ["file10.txt", "file1.txt", "file2.txt"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["file1.txt", "file2.txt", "file10.txt"]);
+    });
+  });
+
   group('Regression tests', () {
     test('Strings that only differ by a single digit', () {
       final List<String> items = ["abc1def", "abc2def", "abc10def"];

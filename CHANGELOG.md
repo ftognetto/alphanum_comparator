@@ -20,3 +20,8 @@
 * Upgrade dart version
 * dart pub upgrade
 * Changed _getChunk method
+
+## [3.0.0] - 2026-08-01
+* **Breaking change**: numeric chunks containing a decimal separator (`.` or `,`) are now compared by their actual numeric value instead of digit-by-digit. For example "1.2" is now sorted after "1.10" (1.2 = 1.20 > 1.10), instead of before it as in previous versions.
+* Decimal numbers are recognized both when isolated and when embedded in more complex strings (e.g. "file_v1.10_final").
+* Plain integer chunks without a decimal separator keep the previous comparison behaviour, so no regression for existing alphanumeric sorting.
