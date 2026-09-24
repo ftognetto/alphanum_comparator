@@ -186,6 +186,16 @@ void main() {
       expect(items, ["1.1", "1.2", "1.20"]);
     });
 
+    test('1.9 is greater than 1.10 when compared as decimals', () {
+      expect(AlphanumComparator.compare("1.9", "1.10"), greaterThan(0));
+      expect(AlphanumComparator.compare("1.10", "1.9"), lessThan(0));
+
+      final List<String> items = ["1.9", "1.10"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1.10", "1.9"]);
+    });
+
     test('Non-decimal dotted strings keep previous behaviour', () {
       final List<String> items = ["file10.txt", "file1.txt", "file2.txt"];
       items.sort(AlphanumComparator.compare);
