@@ -76,14 +76,13 @@ void main() {
       final List<String> items = ["Item 01", "Item 1", "Item 001", "Item 02", "Item 2"];
       items.sort(AlphanumComparator.compare);
 
-      // Note: In most natural sort implementations, the number of leading zeros doesn't affect the order
-      expect(items, [
-        "Item 1",
-        "Item 2",
-        "Item 01",
-        "Item 02",
-        "Item 001",
-      ]);
+      // Leading zeros don't affect the numeric value: equal values compare as 0,
+      // so their relative order after sorting is not specified.
+      expect(items.sublist(0, 3).toSet(), {"Item 1", "Item 01", "Item 001"});
+      expect(items.sublist(3).toSet(), {"Item 2", "Item 02"});
+      expect(AlphanumComparator.compare("Item 01", "Item 1"), 0);
+      expect(AlphanumComparator.compare("Item 01", "Item 2"), lessThan(0));
+      expect(AlphanumComparator.compare("Item 001", "Item 02"), lessThan(0));
     });
 
     test('File paths and URLs', () {
@@ -193,27 +192,45 @@ void main() {
       expect(AlphanumComparator.compare("v1.20_final", "v1.2_final"), 0);
     });
 
-    test('Integers with leading zeros and decimals are ordered transitively', () {
-      // Integer parts keep the previous ordering (length first, so "2" < "01"),
-      // fractional parts are compared by value.
-      expect(AlphanumComparator.compare("2", "01"), lessThan(0));
-      expect(AlphanumComparator.compare("1.5", "01"), lessThan(0));
-      expect(AlphanumComparator.compare("1.5", "2"), lessThan(0));
+    test('Leading zeros do not change the numeric value', () {
+      expect(AlphanumComparator.compare("01.2", "1.20"), 0);
+      expect(AlphanumComparator.compare("01,2", "1.2"), 0);
+      expect(AlphanumComparator.compare("01.2", "2.0"), lessThan(0));
+      expect(AlphanumComparator.compare("2.0", "01.2"), greaterThan(0));
+      expect(AlphanumComparator.compare("01", "1"), 0);
+      expect(AlphanumComparator.compare("2", "01"), greaterThan(0));
+      expect(AlphanumComparator.compare("0.5", "00.50"), 0);
+      expect(AlphanumComparator.compare("00.5", "1"), lessThan(0));
+    });
 
-      final List<String> items = ["01", "2", "1.5", "10", "01.5", "1"];
+    test('Integers and decimals with leading zeros are ordered transitively', () {
+      final List<String> items = ["01", "2", "1.5", "10", "01.5", "1", "01.2", "1.20", "2.0", "002", "0.9"];
       for (final String a in items) {
         for (final String b in items) {
           expect(AlphanumComparator.compare(a, b).sign, -AlphanumComparator.compare(b, a).sign);
           for (final String c in items) {
-            if (AlphanumComparator.compare(a, b) < 0 && AlphanumComparator.compare(b, c) < 0) {
-              expect(AlphanumComparator.compare(a, c), lessThan(0), reason: '$a < $b < $c');
+            final int ab = AlphanumComparator.compare(a, b);
+            final int bc = AlphanumComparator.compare(b, c);
+            if (ab <= 0 && bc <= 0) {
+              final int ac = AlphanumComparator.compare(a, c);
+              if (ab < 0 || bc < 0) {
+                expect(ac, lessThan(0), reason: '$a <= $b <= $c');
+              } else {
+                expect(ac, 0, reason: '$a == $b == $c');
+              }
             }
           }
         }
       }
 
       items.sort(AlphanumComparator.compare);
-      expect(items, ["1", "1.5", "2", "01", "01.5", "10"]);
+      // Sorted by numeric value; equal values may appear in any order.
+      expect(items.first, "0.9");
+      expect(items.sublist(1, 3).toSet(), {"1", "01"});
+      expect(items.sublist(3, 5).toSet(), {"01.2", "1.20"});
+      expect(items.sublist(5, 7).toSet(), {"1.5", "01.5"});
+      expect(items.sublist(7, 10).toSet(), {"2", "2.0", "002"});
+      expect(items.last, "10");
     });
 
     test('1.9 is greater than 1.10 when compared as decimals', () {

@@ -9,17 +9,20 @@ class AlphanumComparator {
     return ch == '.' || ch == ',';
   }
 
-  /// Compares two strings made only of digits: by length first, then digit by digit.
-  /// Leading zeros are kept significant ("2" < "01"), as in previous versions.
+  /// Compares two strings made only of digits by numeric value: leading zeros are
+  /// ignored ("01" == "1" < "2"), then by length first, then digit by digit.
   static int _compareDigits(String a, String b) {
+    a = a.replaceFirst(RegExp(r'^0+'), '');
+    b = b.replaceFirst(RegExp(r'^0+'), '');
     final int result = a.length - b.length;
     if (result != 0) return result;
     return a.compareTo(b);
   }
 
   /// Compares two numeric chunks, optionally containing a decimal separator (. or ,).
-  /// The integer parts are compared with [_compareDigits]; on a tie the fractional
-  /// parts are compared by value (trailing zeros ignored, so "1.2" == "1.20").
+  /// The integer parts are compared with [_compareDigits] (leading zeros ignored); on a
+  /// tie the fractional parts are compared by value (trailing zeros ignored), so
+  /// "01.2" == "1.2" == "1.20".
   /// Strings are compared digit-wise, so no precision is lost on long numbers.
   static int _compareNumericChunks(String a, String b) {
     final List<String> aParts = a.split(RegExp('[.,]'));
