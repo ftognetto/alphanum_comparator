@@ -157,6 +157,83 @@ void main() {
     });
   });
 
+  group('Decimal number sorting', () {
+    test('Client reported case: decimal values sorted by numeric value', () {
+      final List<String> items = ["1.2", "1.22", "1.21"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1.2", "1.21", "1.22"]);
+    });
+
+    test('Comma as decimal separator', () {
+      final List<String> items = ["1,2", "1,22", "1,21"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1,2", "1,21", "1,22"]);
+    });
+
+    test('Decimal numbers within complex strings', () {
+      final List<String> items = ["file_v1.10_final", "file_v1.2_final", "file_v1.21_final"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["file_v1.10_final", "file_v1.2_final", "file_v1.21_final"]);
+    });
+
+    test('Trailing zeros do not change the decimal value', () {
+      expect(AlphanumComparator.compare("1.2", "1.20"), 0);
+      expect(AlphanumComparator.compare("1.20", "1.2"), 0);
+      expect(AlphanumComparator.compare("1,2", "1.20"), 0);
+      expect(AlphanumComparator.compare("1.20", "1.1"), greaterThan(0));
+      expect(AlphanumComparator.compare("1.1", "1.20"), lessThan(0));
+    });
+
+    test('Equivalent decimals followed by more characters', () {
+      expect(AlphanumComparator.compare("1.200", "1.2a"), lessThan(0));
+      expect(AlphanumComparator.compare("1.2a", "1.200"), greaterThan(0));
+      expect(AlphanumComparator.compare("v1.20_final", "v1.2_final"), 0);
+    });
+
+    test('Integers with leading zeros and decimals are ordered transitively', () {
+      // Integer parts keep the previous ordering (length first, so "2" < "01"),
+      // fractional parts are compared by value.
+      expect(AlphanumComparator.compare("2", "01"), lessThan(0));
+      expect(AlphanumComparator.compare("1.5", "01"), lessThan(0));
+      expect(AlphanumComparator.compare("1.5", "2"), lessThan(0));
+
+      final List<String> items = ["01", "2", "1.5", "10", "01.5", "1"];
+      for (final String a in items) {
+        for (final String b in items) {
+          expect(AlphanumComparator.compare(a, b).sign, -AlphanumComparator.compare(b, a).sign);
+          for (final String c in items) {
+            if (AlphanumComparator.compare(a, b) < 0 && AlphanumComparator.compare(b, c) < 0) {
+              expect(AlphanumComparator.compare(a, c), lessThan(0), reason: '$a < $b < $c');
+            }
+          }
+        }
+      }
+
+      items.sort(AlphanumComparator.compare);
+      expect(items, ["1", "1.5", "2", "01", "01.5", "10"]);
+    });
+
+    test('1.9 is greater than 1.10 when compared as decimals', () {
+      expect(AlphanumComparator.compare("1.9", "1.10"), greaterThan(0));
+      expect(AlphanumComparator.compare("1.10", "1.9"), lessThan(0));
+
+      final List<String> items = ["1.9", "1.10"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["1.10", "1.9"]);
+    });
+
+    test('Non-decimal dotted strings keep previous behaviour', () {
+      final List<String> items = ["file10.txt", "file1.txt", "file2.txt"];
+      items.sort(AlphanumComparator.compare);
+
+      expect(items, ["file1.txt", "file2.txt", "file10.txt"]);
+    });
+  });
+
   group('Regression tests', () {
     test('Strings that only differ by a single digit', () {
       final List<String> items = ["abc1def", "abc2def", "abc10def"];
