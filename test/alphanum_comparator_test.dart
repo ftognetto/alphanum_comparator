@@ -180,10 +180,40 @@ void main() {
     });
 
     test('Trailing zeros do not change the decimal value', () {
-      final List<String> items = ["1.20", "1.2", "1.1"];
-      items.sort(AlphanumComparator.compare);
+      expect(AlphanumComparator.compare("1.2", "1.20"), 0);
+      expect(AlphanumComparator.compare("1.20", "1.2"), 0);
+      expect(AlphanumComparator.compare("1,2", "1.20"), 0);
+      expect(AlphanumComparator.compare("1.20", "1.1"), greaterThan(0));
+      expect(AlphanumComparator.compare("1.1", "1.20"), lessThan(0));
+    });
 
-      expect(items, ["1.1", "1.2", "1.20"]);
+    test('Equivalent decimals followed by more characters', () {
+      expect(AlphanumComparator.compare("1.200", "1.2a"), lessThan(0));
+      expect(AlphanumComparator.compare("1.2a", "1.200"), greaterThan(0));
+      expect(AlphanumComparator.compare("v1.20_final", "v1.2_final"), 0);
+    });
+
+    test('Integers with leading zeros and decimals are ordered transitively', () {
+      // Integer parts keep the previous ordering (length first, so "2" < "01"),
+      // fractional parts are compared by value.
+      expect(AlphanumComparator.compare("2", "01"), lessThan(0));
+      expect(AlphanumComparator.compare("1.5", "01"), lessThan(0));
+      expect(AlphanumComparator.compare("1.5", "2"), lessThan(0));
+
+      final List<String> items = ["01", "2", "1.5", "10", "01.5", "1"];
+      for (final String a in items) {
+        for (final String b in items) {
+          expect(AlphanumComparator.compare(a, b).sign, -AlphanumComparator.compare(b, a).sign);
+          for (final String c in items) {
+            if (AlphanumComparator.compare(a, b) < 0 && AlphanumComparator.compare(b, c) < 0) {
+              expect(AlphanumComparator.compare(a, c), lessThan(0), reason: '$a < $b < $c');
+            }
+          }
+        }
+      }
+
+      items.sort(AlphanumComparator.compare);
+      expect(items, ["1", "1.5", "2", "01", "01.5", "10"]);
     });
 
     test('1.9 is greater than 1.10 when compared as decimals', () {
